@@ -54,15 +54,17 @@ The project is designed to handle spatial data of caves, including their locatio
     cd cave_registry
     ```
 
-2.  **Start the services:**
+2.  **Configure the environment:**
+    ```bash
+    cp .env.example .env
+    ```
+    Edit `.env` if you need to change any defaults (DB credentials, secret key, etc.).
+
+3.  **Start the services:**
     ```bash
     docker compose up -d
     ```
-
-3.  **Apply database migrations:**
-    ```bash
-    make migrate
-    ```
+    This starts the database, backend, and frontend. Database migrations are applied automatically on startup — no manual step required.
 
 4.  **Create an administrative account:**
     ```bash
@@ -72,7 +74,7 @@ The project is designed to handle spatial data of caves, including their locatio
 5.  **Import initial data:**
     Seed the database with cave data from the `data/` directory:
     ```bash
-    make import
+    make import_caves
     ```
 
 The application will be available at:
