@@ -25,6 +25,9 @@ const CaveForm: React.FC = () => {
     geology: null,
     description: '',
     last_survey_date: '',
+    parking_latitude: null,
+    parking_longitude: null,
+    parking_notes: '',
     is_published: true,
   });
 
@@ -64,6 +67,9 @@ const CaveForm: React.FC = () => {
             geology: caveData.geology as CaveWritePayload['geology'],
             description: caveData.description || '',
             last_survey_date: caveData.last_survey_date || '',
+            parking_latitude: caveData.parking_latitude ?? null,
+            parking_longitude: caveData.parking_longitude ?? null,
+            parking_notes: caveData.parking_notes || '',
             is_published: caveData.is_published,
           });
           setMedia(mediaData);
@@ -335,6 +341,49 @@ const CaveForm: React.FC = () => {
               className={inputClass}
               required
             />
+          </div>
+
+          <div className="md:col-span-2">
+            <div className="border-t border-slate-700 pt-6 pb-2">
+              <h3 className="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4">Parcheggio (opzionale)</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className={labelClass}>Latitudine parcheggio</label>
+                  <input
+                    type="number"
+                    step="any"
+                    name="parking_latitude"
+                    value={formData.parking_latitude ?? ''}
+                    onChange={handleChange}
+                    className={inputClass}
+                    placeholder="es. 46.123456"
+                  />
+                </div>
+                <div>
+                  <label className={labelClass}>Longitudine parcheggio</label>
+                  <input
+                    type="number"
+                    step="any"
+                    name="parking_longitude"
+                    value={formData.parking_longitude ?? ''}
+                    onChange={handleChange}
+                    className={inputClass}
+                    placeholder="es. 11.123456"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className={labelClass}>Note parcheggio</label>
+                  <input
+                    type="text"
+                    name="parking_notes"
+                    value={formData.parking_notes || ''}
+                    onChange={handleChange}
+                    className={inputClass}
+                    placeholder="es. Parcheggio sterrato vicino al bivio"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="md:col-span-2">

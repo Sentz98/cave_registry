@@ -14,6 +14,9 @@ export interface Cave {
   geology: 'limestone' | 'dolomite' | 'gypsum' | 'other' | null;
   description: string | null;
   last_survey_date: string | null;
+  parking_latitude: number | null;
+  parking_longitude: number | null;
+  parking_notes: string | null;
   is_published: boolean;
   created_at: string;
   updated_at: string;
@@ -34,6 +37,9 @@ export interface CaveWritePayload {
   geology?: 'limestone' | 'dolomite' | 'gypsum' | 'other' | null;
   description?: string | null;
   last_survey_date?: string | null;
+  parking_latitude?: number | null;
+  parking_longitude?: number | null;
+  parking_notes?: string | null;
   is_published?: boolean;
 }
 

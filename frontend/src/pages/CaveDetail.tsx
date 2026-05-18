@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { fetchCave, fetchCaveMedia, type Cave, type CaveMedia } from '../api/caves';
-import { DocumentArrowDownIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { DocumentArrowDownIcon, XMarkIcon, MapPinIcon } from '@heroicons/react/24/outline';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { fixLeafletIcon } from '../utils/leafletIconFix';
+import { downloadGpx, openMapsToParking } from '../utils/gpxExport';
 
 fixLeafletIcon();
 
@@ -74,7 +75,24 @@ const CaveDetail = () => {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
-    L.marker([cave.latitude, cave.longitude]).addTo(map);
+    L.marker([cave.latitude, cave.longitude]).bindTooltip('Ingresso', { permanent: false }).addTo(map);
+
+    if (cave.parking_latitude != null && cave.parking_longitude != null) {
+      const parkingIcon = L.divIcon({
+        className: '',
+        html: '<div style="background:#f59e0b;border:2px solid #fff;border-radius:50%;width:14px;height:14px;box-shadow:0 0 4px rgba(0,0,0,.5)"></div>',
+        iconAnchor: [7, 7],
+      });
+      L.marker([cave.parking_latitude, cave.parking_longitude], { icon: parkingIcon })
+        .bindTooltip(cave.parking_notes ?? 'Parcheggio', { permanent: false })
+        .addTo(map);
+
+      const bounds = L.latLngBounds(
+        [cave.latitude, cave.longitude],
+        [cave.parking_latitude, cave.parking_longitude],
+      );
+      map.fitBounds(bounds, { padding: [30, 30] });
+    }
 
     return () => {
       map.remove();
@@ -175,6 +193,31 @@ const CaveDetail = () => {
         {cave.latitude && cave.longitude && (
           <div className="text-slate-400 text-sm text-right mt-2">
             {formatCoords(cave.latitude, 'N')}, {formatCoords(cave.longitude, 'E')}
+          </div>
+        )}
+
+        {/* GPS / Navigation export */}
+        <div className="flex flex-wrap gap-3 mt-4">
+          <button
+            onClick={() => downloadGpx(cave)}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white text-sm font-medium rounded-lg transition-colors border border-slate-600"
+            title="Scarica traccia GPX con parcheggio e ingresso per GPS"
+          >
+            <DocumentArrowDownIcon className="w-4 h-4 text-teal-400" />
+            Scarica GPX
+          </button>
+          <button
+            onClick={() => openMapsToParking(cave)}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white text-sm font-medium rounded-lg transition-colors border border-slate-600"
+            title={cave.parking_latitude != null ? 'Apri navigazione verso il parcheggio' : 'Apri navigazione verso l\'ingresso'}
+          >
+            <MapPinIcon className="w-4 h-4 text-amber-400" />
+            {cave.parking_latitude != null ? 'Naviga al parcheggio' : 'Naviga all\'ingresso'}
+          </button>
+        </div>
+        {cave.parking_notes && (
+          <div className="mt-2 text-sm text-slate-400 italic">
+            📍 {cave.parking_notes}
           </div>
         )}
       </div>

@@ -28,6 +28,9 @@ class Cave(models.Model):
     description = models.TextField(blank=True, null=True)
     last_survey_date = models.DateField(blank=True, null=True)
 
+    parking_location = models.PointField(srid=4326, geography=True, blank=True, null=True)
+    parking_notes = models.CharField(max_length=500, blank=True, null=True)
+
     is_published = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -8,6 +8,8 @@ class CaveSerializer(serializers.ModelSerializer):
     location = GeometryField()
     latitude = serializers.SerializerMethodField()
     longitude = serializers.SerializerMethodField()
+    parking_latitude = serializers.SerializerMethodField()
+    parking_longitude = serializers.SerializerMethodField()
 
     class Meta:
         model = Cave
@@ -28,6 +30,9 @@ class CaveSerializer(serializers.ModelSerializer):
             "geology",
             "description",
             "last_survey_date",
+            "parking_latitude",
+            "parking_longitude",
+            "parking_notes",
             "is_published",
             "created_at",
             "updated_at",
@@ -38,6 +43,12 @@ class CaveSerializer(serializers.ModelSerializer):
 
     def get_longitude(self, obj):
         return obj.location.x if obj.location else None
+
+    def get_parking_latitude(self, obj):
+        return obj.parking_location.y if obj.parking_location else None
+
+    def get_parking_longitude(self, obj):
+        return obj.parking_location.x if obj.parking_location else None
 
 
 class CaveGeoSerializer(GeoFeatureModelSerializer):
@@ -57,6 +68,8 @@ class CaveGeoSerializer(GeoFeatureModelSerializer):
 class CaveWriteSerializer(serializers.ModelSerializer):
     latitude = serializers.FloatField(write_only=True)
     longitude = serializers.FloatField(write_only=True)
+    parking_latitude = serializers.FloatField(write_only=True, required=False, allow_null=True)
+    parking_longitude = serializers.FloatField(write_only=True, required=False, allow_null=True)
 
     class Meta:
         model = Cave
@@ -76,6 +89,9 @@ class CaveWriteSerializer(serializers.ModelSerializer):
             "geology",
             "description",
             "last_survey_date",
+            "parking_latitude",
+            "parking_longitude",
+            "parking_notes",
             "is_published",
         ]
 
@@ -89,6 +105,10 @@ class CaveWriteSerializer(serializers.ModelSerializer):
         lat = validated_data.pop("latitude")
         lon = validated_data.pop("longitude")
         validated_data["location"] = Point(lon, lat, srid=4326)
+        p_lat = validated_data.pop("parking_latitude", None)
+        p_lon = validated_data.pop("parking_longitude", None)
+        if p_lat is not None and p_lon is not None:
+            validated_data["parking_location"] = Point(p_lon, p_lat, srid=4326)
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
@@ -96,6 +116,12 @@ class CaveWriteSerializer(serializers.ModelSerializer):
         lon = validated_data.pop("longitude", None)
         if lat is not None and lon is not None:
             validated_data["location"] = Point(lon, lat, srid=4326)
+        p_lat = validated_data.pop("parking_latitude", None)
+        p_lon = validated_data.pop("parking_longitude", None)
+        if p_lat is not None and p_lon is not None:
+            validated_data["parking_location"] = Point(p_lon, p_lat, srid=4326)
+        elif "parking_latitude" in self.initial_data and self.initial_data["parking_latitude"] in (None, ""):
+            validated_data["parking_location"] = None
         return super().update(instance, validated_data)
 
 
